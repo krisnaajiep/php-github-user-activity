@@ -5,5 +5,5 @@ A simple command line interface (CLI) to fetch the recent activity of a GitHub u
 ## Usage
 
 ```bash 
-php index.php [github-username]
+$ php index.php [github-username]
 ```
