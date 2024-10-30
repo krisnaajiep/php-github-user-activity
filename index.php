@@ -79,4 +79,6 @@ if (isset($argv[1])) {
   }
 
   echo $events;
+} else {
+  echo help();
 }

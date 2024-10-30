@@ -1,5 +1,8 @@
 <?php
 
+/*
+  Fetch the recent activity of the specified GitHub user using the GitHub API
+*/
 function getGithubEvents(string $username): string|array
 {
   $ch = curl_init();
@@ -31,11 +34,17 @@ function getGithubEvents(string $username): string|array
   return $result;
 }
 
+/*
+  Get a github repository name
+*/
 function repoName(array $event): string
 {
   return $event['repo']['name'];
 }
 
+/*
+  Swap create a repository and create the first branch on the same repository
+*/
 function sortCreateEvent($a, $b): int
 {
   if ($a['type'] == 'CreateEvent' && $b['type'] == 'CreateEvent') {
@@ -52,6 +61,9 @@ function sortCreateEvent($a, $b): int
   return 0;
 }
 
+/*
+  A commit comment is created. 
+*/
 function commitCommentEvent(array $event): string
 {
   $action = $event['payload']['action'];
@@ -61,6 +73,9 @@ function commitCommentEvent(array $event): string
   return "Commit comment $action by $actor on commit '$commit_id' in " . repoName($event);
 }
 
+/*
+  A Git branch or tag is created.
+*/
 function createEvent(array $event): string
 {
   $ref = $event['payload']['ref'];
@@ -72,6 +87,9 @@ function createEvent(array $event): string
   return "Created new $payloadRefType " . repoName($event);
 }
 
+/*
+  A Git branch or tag is deleted.
+*/
 function deleteEvent(array $event): string
 {
   $ref = $event['payload']['ref'];
@@ -80,6 +98,10 @@ function deleteEvent(array $event): string
   return "Deleted $refType [$ref] in " . repoName($event);
 }
 
+
+/*
+  A user forks a repository.
+*/
 function forkEvent(array $event): string
 {
   $forkeeFullName = $event['payload']['forkee']['full_name'];
@@ -87,6 +109,9 @@ function forkEvent(array $event): string
   return "Forked " . repoName($event) . " to $forkeeFullName";
 }
 
+/*
+  A wiki page is created or updated.
+*/
 function gollumEvent(array $event): string
 {
   $action = ucfirst($event['payload']['pages'][0]['action']);
@@ -94,6 +119,9 @@ function gollumEvent(array $event): string
   return "$action a wiki page in " . repoName($event);
 }
 
+/*
+  Activity related to an issue or pull request comment.
+*/
 function issueCommentEvent(array $event): string
 {
   $action = ucfirst($event['payload']['action']);
@@ -102,6 +130,9 @@ function issueCommentEvent(array $event): string
   return "$action comment on issue #$issueNumber in " . repoName($event);
 }
 
+/*
+  Activity related to an issue.
+*/
 function issueEvent(array $event): string
 {
   $action = ucfirst($event['payload']['action']);
@@ -112,6 +143,9 @@ function issueEvent(array $event): string
   return "$payloadAction in " . repoName($event);
 }
 
+/* 
+  Activity related to repository collaborators.
+*/
 function memberEvent(array $event): string
 {
   $action = ucfirst($event['payload']['action']);
@@ -125,11 +159,17 @@ function memberEvent(array $event): string
   return "$action $member $message " . repoName($event);
 }
 
+/*
+  When a private repository is made public.
+*/
 function publicEvent(array $event): string
 {
   return "Changed visibility to public for " . repoName($event);
 }
 
+/*
+  Activity related to pull requests.
+*/
 function pullRequestEvent(array $event): string
 {
   $action = $event['payload']['action'];
@@ -141,6 +181,9 @@ function pullRequestEvent(array $event): string
   return "$payloadAction pull request #$number in " . repoName($event);
 }
 
+/*
+  Activity related to pull request reviews.
+*/
 function pullRequestReviewEvent(array $event): string
 {
   $actor = $event['actor']['login'];
@@ -155,6 +198,9 @@ function pullRequestReviewEvent(array $event): string
   return "$opening $action by $actor for pull request #$number in " . repoName($event);
 }
 
+/*
+  One or more commits are pushed to a repository branch or tag.
+*/
 function pushEvent(array $event): string
 {
   $size = $event['payload']['size'];
@@ -165,6 +211,9 @@ function pushEvent(array $event): string
   return "Pushed $payloadSize to " . repoName($event);
 }
 
+/*
+  Activity related to a release.
+*/
 function releaseEvent(array $event): string
 {
   $action = ucfirst($event['payload']['action']);
@@ -176,6 +225,9 @@ function releaseEvent(array $event): string
   return "$action $release $tagName in " . repoName($event);
 }
 
+/*
+  Activity related to a sponsorship listing.
+*/
 function sponsorshipEvent(array $event): string
 {
   $action = ucfirst($event['payload']['action']);
@@ -184,7 +236,26 @@ function sponsorshipEvent(array $event): string
   return "$action sponsorship by $actor in " . repoName($event);
 }
 
+/*
+  When someone stars a repository.
+*/
 function watchEvent(array $event): string
 {
   return "Starred " . repoName($event);
+}
+
+/*
+  Guide for using PHP Github User Activity
+*/
+function help(): string
+{
+  $yellow = "\033[33m";
+  $green = "\033[32m";
+  $reset = "\033[0m";
+
+  $help =
+    $green . "\nPHP Github User Activity \n" . $reset . PHP_EOL .
+    $yellow . 'Usage:' . $reset . " php index.php <username>\n\n";
+
+  return $help;
 }
