@@ -22,7 +22,7 @@ function getGithubEvents(string $username): string|array
     $status = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
 
     $result = $status != 200
-      ? 'Status: ' . $decode['status']
+      ? 'Error ' . $status . ' (' . $decode['message'] . ')'
       : $decode;
   }
 
